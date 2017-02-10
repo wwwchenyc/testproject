@@ -1,0 +1,82 @@
+Master 发送五个多包消息代码
+int aaaaa=1;
+int datasegmentnumber=0;
+uint8_t data[2048];
+void SPI_COM_1Ms(void)
+{
+    MSG myMsg = {0};
+	if(bSpi_Cycle_lock_sg == FALSE)
+	{
+    	myMsg.cmd = C_SPI_CYCLE;
+    	csnd_msg( ID_MBX_QM, &myMsg );
+		bSpi_Cycle_lock_sg = TRUE;
+	}
+
+	if(aaaaa<1)
+	{
+		switch(datasegmentnumber)
+		{
+			case 0:
+				memset(data,		0U, 2048 * sizeof(uint8_t));
+				data[0] = 0x61;
+				data[1]	= 0x01;
+				data[2] = 0x1f;
+				data[3] = 0xf2;
+				if(SPI_COM_SEND_ALLOW==SPI_COM_SendReq(5, 0, data, 2037))
+					datasegmentnumber++;
+				break;
+					
+			case 1:
+				memset(data,		0U, 2048 * sizeof(uint8_t));
+				if(SPI_COM_SEND_ALLOW==SPI_COM_SendReq(5, 1, data, 2037))
+					datasegmentnumber++;
+				break;
+			case 2:
+				memset(data,		0U, 2048 * sizeof(uint8_t));
+				if(SPI_COM_SEND_ALLOW==SPI_COM_SendReq(5, 2, data, 2037))
+					datasegmentnumber++;
+				break;
+			case 3:
+				memset(data,		0U, 2048 * sizeof(uint8_t));
+				if(SPI_COM_SEND_ALLOW==SPI_COM_SendReq(5, 3, data, 2037))
+					datasegmentnumber++;
+				break;
+			case 4:
+				memset(data,		0U, 2048 * sizeof(uint8_t));
+				if(SPI_COM_SEND_ALLOW==SPI_COM_SendReq(5, 4, data, 2037))
+					datasegmentnumber++;
+				break;
+				
+		}
+	}
+}
+
+Radio通过Rmm发送24k数据代码
+
+uint8_t aaa=10;
+void SPI_COM_1Ms(void)
+{
+	uint8_t * snd;
+	RMM_STATUS result;
+	if(aaa<10)
+	{
+		snd = rmm_alloc(10+12*2048*sizeof(uint8_t));
+		if(snd != NULL)
+		{
+			memset(snd,		aaa, (10+12*2048*sizeof(uint8_t)));
+			snd[0]=0x00;
+			snd[1]=0x01;
+			snd[2]=0x60;
+			snd[3]=0x06;
+			result = rmm_send(snd, 0U);
+			if(result != E_RMM_ACCEPT)
+			{
+				rmm_free(snd);
+			}
+			else
+			{
+				aaa++;
+			}
+		}
+	}
+}
